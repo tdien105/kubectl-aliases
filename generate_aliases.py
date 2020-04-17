@@ -34,7 +34,9 @@ def main():
             'sys',
             'mb',
             'sh',
-            'arn'
+            'arn',
+            'ms',
+            'ar'
              ]
     cmds = [('k', 'kubectl', None, None)]
 
@@ -42,8 +44,10 @@ def main():
                 ('sys', '--namespace=kube-system', None, nss),
                 ('i', '--namespace=istio-system', None, nss),
                 ('mb', '--namespace=mb', None, nss),
-                ('arn', '--namespace=socialhead', None, nss),
+                ('arn', '--namespace=arena', None, nss),
                 ('sh', '--namespace=socialhead', None, nss),
+                ('ms', '--namespace=manysales', None, nss),
+                ('ar', '--namespace=alireviews', None, nss),
 
             ]
 
