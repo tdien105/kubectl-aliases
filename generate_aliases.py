@@ -28,55 +28,56 @@ except NameError:
 
 def main():
     # (alias, full, allow_when_oneof, incompatible_with)
+
+    nss = [
+            'i',
+            'sys',
+            'mb',
+            'sh',
+            'arn'
+             ]
     cmds = [('k', 'kubectl', None, None)]
 
-    globs = [('sys', '--namespace=kube-system', None, ['sys'])]
+    globs = [
+                ('sys', '--namespace=kube-system', None, nss),
+                ('i', '--namespace=istio-system', None, nss),
+                ('mb', '--namespace=mb', None, nss),
+                ('arn', '--namespace=socialhead', None, nss),
+                ('sh', '--namespace=socialhead', None, nss),
+
+            ]
 
     ops = [
-        ('a', 'apply --recursive -f', None, None),
-        ('ak', 'apply -k', None, ['sys']),
-        ('k', 'kustomize', None, ['sys']),
-        ('ex', 'exec -i -t', None, None),
-        ('lo', 'logs -f', None, None),
-        ('lop', 'logs -f -p', None, None),
-        ('p', 'proxy', None, ['sys']),
-        ('pf', 'port-forward', None, ['sys']),
-        ('g', 'get', None, None),
-        ('d', 'describe', None, None),
-        ('rm', 'delete', None, None),
-        ('run', 'run --rm --restart=Never --image-pull-policy=IfNotPresent -i -t', None, None),
+            ('a', 'apply -f', None, nss),
+            ('ex', 'exec -i -t', None, None),
+            ('lo', 'logs -f', None, None),
+            ('g', 'get', None, None),
+            ('d', 'describe', None, None),
+            ('rm', 'delete', None, None),
         ]
 
     res = [
-        ('po', 'pods', ['g', 'd', 'rm'], None),
-        ('dep', 'deployment', ['g', 'd', 'rm'], None),
-        ('svc', 'service', ['g', 'd', 'rm'], None),
-        ('ing', 'ingress', ['g', 'd', 'rm'], None),
-        ('cm', 'configmap', ['g', 'd', 'rm'], None),
-        ('sec', 'secret', ['g', 'd', 'rm'], None),
-        ('no', 'nodes', ['g', 'd'], ['sys']),
-        ('ns', 'namespaces', ['g', 'd', 'rm'], ['sys']),
+            ('po', 'pods', ['g', 'd', 'rm'], None),
+            ('dep', 'deployment', ['g', 'd', 'rm'], None),
+            ('svc', 'service', ['g', 'd', 'rm'], None),
+            ('ing', 'ingress', ['g', 'd', 'rm'], None),
+            ('cm', 'configmap', ['g', 'd', 'rm'], None),
+
+            ('no', 'nodes', ['g', 'd'], nss),
+            ('ns', 'namespaces', ['g', 'd', 'rm'], nss),
         ]
     res_types = [r[0] for r in res]
 
     args = [
-        ('oyaml', '-o=yaml', ['g'], ['owide', 'ojson', 'sl']),
-        ('owide', '-o=wide', ['g'], ['oyaml', 'ojson']),
-        ('ojson', '-o=json', ['g'], ['owide', 'oyaml', 'sl']),
-        ('all', '--all-namespaces', ['g', 'd'], ['rm', 'f', 'no', 'sys'
-         ]),
-        ('sl', '--show-labels', ['g'], ['oyaml', 'ojson']
-         + diff(res_types, ['po', 'dep'])),
-        ('all', '--all', ['rm'], None), # caution: reusing the alias
-        ('w', '--watch', ['g'], ['oyaml', 'ojson', 'owide']),
-        ]
+                ('all', '--all-namespaces', ['g', 'd'], ['rm', 'f', 'no'] + nss),
+                ('all', '--all', ['rm'], None), # caution: reusing the alias
+            ]
 
     # these accept a value, so they need to be at the end and
     # mutually exclusive within each other.
-    positional_args = [('f', '--recursive -f', ['g', 'd', 'rm'], res_types + ['all'
-                       , 'l', 'sys']), ('l', '-l', ['g', 'd', 'rm'], ['f',
-                       'all']), ('n', '--namespace', ['g', 'd', 'rm',
-                       'lo', 'ex', 'pf'], ['ns', 'no', 'sys', 'all'])]
+    positional_args = [
+                        
+                       ]
 
     # [(part, optional, take_exactly_one)]
     parts = [
@@ -92,16 +93,19 @@ def main():
     out = filter(is_valid, out)
 
     # prepare output
-    if not sys.stdout.isatty():
-        header_path = \
-            os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                         'license_header')
-        with open(header_path, 'r') as f:
-            print(f.read())
-    for cmd in out:
-        print("alias {}='{}'".format(''.join([a[0] for a in cmd]),
+    # if not sys.stdout.isatty():
+    #     header_path = \
+    #         os.path.join(os.path.dirname(os.path.realpath(__file__)),
+    #                      'license_header')
+    #     with open(header_path, 'r') as f:
+    #         print(f.read())
+    try:
+        for cmd in out:
+            print("alias {}='{}'".format(''.join([a[0] for a in cmd]),
               ' '.join([a[1] for a in cmd])))
-
+    except Exception as e:
+        pass
+    
 
 def gen(parts):
     out = [()]
@@ -181,6 +185,3 @@ def diff(a, b):
 
 if __name__ == '__main__':
     main()
-
-
-			
